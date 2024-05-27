@@ -34,6 +34,8 @@ onMounted(async () =>{
       <img
         src="/ugway.png"
         alt="ugway-photo"
+        @click="refresh"
+        class="hover:scale-105 ease-in duration-100 transition"
       >
       <div
         class="flex flex-col items-center gap-3" 
