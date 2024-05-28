@@ -19,7 +19,6 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^6.0.0",
     "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/jsdom": "^21.1.6",
