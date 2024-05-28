@@ -1,51 +1,100 @@
 <script setup lang="ts">
-import { getQuote } from '@/api';
-import { onMounted, ref } from 'vue';
-import type { Ref } from 'vue'
+import {ref, onMounted} from 'vue'
 
-interface Quote {
-  author: string;
-  authorSlug: string;
-  content: string;
-  dateAdded: string;
-  dateModified: string;
-  length: number;
-  tags: string[];
-  _id: string;
+const canvas = ref()
+const ctx = ref()
+
+const width = 750
+const height = 750
+const isPainting = ref(false)
+const startX = ref()
+const startY = ref()
+const lineWidth = ref(5)
+
+
+const down = (e: MouseEvent) => {
+  isPainting.value = true
+  startX.value = e.clientX;
+  startY.value = e.clientY;
 }
 
-const quote: Ref<Quote | null> = ref(null)
+const up = () => {
+  isPainting.value = false
+  ctx.value.stroke()
+  ctx.value.beginPath()
+}
 
-const refresh = async () => {
-  const data = await getQuote()
-  if (data){
-    quote.value = data
+const draw = (e: MouseEvent) => {
+  if (!isPainting.value){
+    return
   }
+  ctx.value.lineWidth=lineWidth.value
+  ctx.value.lineCap='round'
+
+  ctx.value.lineTo(e.clientX - canvas.value.offsetLeft, e.clientY - canvas.value.offsetTop);
+  ctx.value.stroke();
 }
 
-onMounted(async () =>{
-  await refresh()
-})
+const refresh = () => {
+  ctx.value.fillStyle = 'white';
+  ctx.value.fillRect(0, 0, width, height);
+}
+
+onMounted(() => {
+  ctx.value = canvas.value.getContext('2d')
+  refresh()
+});
+
 </script>
 
 <template>
-  <div class="w-full flex justify-center items-center h-screen bg-slate-800 text-white">
-    <div class="w-4/5 flex flex-col items-center justify-between h-2/5">
-      <img
-        src="/ugway.png"
-        alt="ugway-photo"
-        @click="refresh"
-        class="hover:scale-105 ease-in duration-100 transition"
+  <div 
+    class="main w-full flex justify-center items-center h-screen text-white"
+    @mousedown="down"
+    @mouseup="up"
+    @mousemove="draw"
+  >
+    <div class="flex flex-col gap-3">
+      <h1 class="text-5xl text-center">
+        Printer
+      </h1>
+      <canvas 
+        ref="canvas" 
+        :width="width" 
+        :height="height"
+        class="border"
+      />
+      <div 
+        :width="width" 
+        class="flex align-items-center justify-around"
       >
-      <div
-        class="flex flex-col items-center gap-3" 
-        v-if="quote"
-      >
-        <i class="text-2xl text-center">
-          "{{ quote.content }}"
-        </i>
-        {{ quote.author }}
+        <input 
+          v-if="ctx"
+          id="stroke" 
+          name="stroke" 
+          type="color"
+          v-model="ctx.strokeStyle"
+        >
+        <input 
+          type="number" 
+          class="bg-white text-black w-12"
+          v-model="lineWidth"
+          min="1" 
+          max="50"
+        >
+        <input 
+          type="button" 
+          value="Clear" 
+          class="bg-white text-black w-12"
+          @click="refresh"
+        >
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.main{
+  background-color: slateblue;
+}
+</style>
